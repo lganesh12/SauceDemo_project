@@ -1,0 +1,5 @@
+playwright==1.52.0
+python-dotenv==1.1.0
+behave==1.2.6
+allure-behave==2.13.5
+pre-commit
