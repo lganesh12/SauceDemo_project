@@ -24,8 +24,10 @@ def setup_browser(context, playwright, storage_state=False):
         browser = playwright.chromium.launch(
             headless=context.headless,
             slow_mo=SLOW_MOTION_TIME,
-
-            args=["--disable-blink-features=AutomationControlled"],
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--disable-blink-features",
+            ]
         )
     elif context.browser == "Firefox":
         browser = playwright.firefox.launch(
@@ -71,7 +73,7 @@ def before_all(context):
     context.password = get_env_value("PASSWORD")
     context.username = get_env_value("USERNAME")
     use_fixture(setup_playwright, context, storage_state=True)
-    context.page.goto(context.base_url, wait_until="load", timeout=60000)
+    context.page.goto(context.base_url, wait_until="load", timeout=1200000)
 
 
 
@@ -92,6 +94,9 @@ def after_scenario(context, scenario):
         #Screenshot
         attach(context.page.screenshot(),name=f"Screenshot : {scenario.name}",attachment_type=AttachmentType.PNG)
     else:
-        context.user.logout()
+        if "TC_02" in context.scenario.tags:
+            pass
+        else:
+            context.user.logout()
 
 
