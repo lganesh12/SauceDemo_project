@@ -1,6 +1,6 @@
 Feature: Validate cart details
 
-  @TC_08
+  @TC_08 @not_implemented
   Scenario: Verify cart details after adding a product
     Given the user wants to Verify cart details after adding a product
     And   the user has added the product "Sauce Labs Backpack" to the cart

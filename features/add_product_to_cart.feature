@@ -1,6 +1,6 @@
 Feature: Add product to cart
 
-  @TC_03
+  @TC_03 @not_implemented
   Scenario: Add a product to the shopping cart
     Given the user is wants to Add a product to the shopping cart
     When  the user adds the product "Sauce Labs Backpack" to the cart
