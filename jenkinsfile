@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    tools {
+        python 'python3'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/lganesh12/SauceDemo_project'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install -r requirements.txt'
+                sh 'pip install allure-behave'
+            }
+        }
+
+        stage('Run Tests with Allure') {
+            steps {
+                // Run behave tests excluding @not_implemented scenarios
+                sh 'behave -f allure_behave.formatter:AllureFormatter -o allure-results --tags=~not_implemented ./features'
+            }
+        }
+
+        stage('Publish Allure Report') {
+            steps {
+                allure includeProperties: false,
+                     jdk: '',
+                     results: [[path: 'allure-results']]
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
