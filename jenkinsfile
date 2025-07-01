@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -12,17 +13,61 @@ pipeline {
             }
         }
 
+        stage('Environment Info') {
+            steps {
+                sh '''
+                    echo "Workspace directory:"
+                    pwd
+                    echo "\nDirectory contents:"
+                    ls -la
+                    echo "\nPython version:"
+                    python3 --version || echo "Python not found"
+                    echo "\nPip version:"
+                    pip --version || echo "Pip not found"
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
-                sh 'pip install allure-behave'
+                script {
+                    try {
+                        sh 'python3 -m pip install --upgrade pip'
+                        sh 'if [ -f "requirements.txt" ]; then pip install -r requirements.txt; else echo "requirements.txt not found"; exit 1; fi'
+                        sh 'pip install allure-behave'
+                    } catch (Exception e) {
+                        echo "Error during dependency installation: ${e.getMessage()}"
+                        throw e
+                    }
+                }
+            }
+        }
+
+        stage('Verify Test Directory') {
+            steps {
+                sh '''
+                    echo "Checking features directory:"
+                    if [ -d "./features" ]; then
+                        echo "Features directory exists"
+                        ls -la ./features
+                    else
+                        echo "Features directory not found"
+                        exit 1
+                    fi
+                '''
             }
         }
 
         stage('Run Tests with Allure') {
             steps {
-                // Run behave tests excluding @not_implemented scenarios
-                sh 'behave -f allure_behave.formatter:AllureFormatter -o allure-results --tags=~not_implemented ./features'
+                script {
+                    try {
+                        sh 'behave -f allure_behave.formatter:AllureFormatter -o allure-results --tags=~not_implemented ./features'
+                    } catch (Exception e) {
+                        echo "Error during test execution: ${e.getMessage()}"
+                        throw e
+                    }
+                }
             }
         }
 
@@ -38,6 +83,9 @@ pipeline {
     post {
         always {
             cleanWs()
+        }
+        failure {
+            echo 'Pipeline failed! Check the logs for details.'
         }
     }
 }
