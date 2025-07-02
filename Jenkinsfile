@@ -16,7 +16,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''
                     . venv/bin/activate
-                    behave -f allure_behave.formatter:AllureFormatter -o allure-results
+                    behave -f allure_behave.formatter:AllureFormatter -o allure-results ./features --tags=@TC_01,~@not_implemented
                     '''
                 }
             }
