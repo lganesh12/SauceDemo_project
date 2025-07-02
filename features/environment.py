@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from allure_commons._allure import attach
 from allure_commons.types import AttachmentType
 from behave import fixture
