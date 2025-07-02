@@ -1,4 +1,3 @@
-
 class Login:
     def __init__(self, page):
         self.page = page
@@ -19,4 +18,3 @@ class Login:
 
     def is_user_logged_in(self):
         return self.page.title() == "Swag Labs"
-

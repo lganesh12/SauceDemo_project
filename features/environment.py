@@ -1,10 +1,12 @@
 import logging
+
 from allure_commons._allure import attach
 from allure_commons.types import AttachmentType
 from behave import fixture
 from behave import use_fixture
 from behave.model_core import Status
 from playwright.sync_api import sync_playwright
+
 from features.variable import SLOW_MOTION_TIME
 from user_flow.user import User
 from utilities.env import get_env_value
@@ -14,11 +16,8 @@ from utilities.env import load_env
 # Set up basic logging configuration
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('test_execution.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("test_execution.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -34,8 +33,8 @@ def setup_browser(context, playwright, storage_state=False):
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--disable-blink-features",
-                "--ignore-certificate-errors"
-            ]
+                "--ignore-certificate-errors",
+            ],
         )
     elif context.browser == "Firefox":
         browser = playwright.firefox.launch(
@@ -54,9 +53,7 @@ def setup_playwright(context, storage_state=False):
     logger.info("Starting Playwright setup")
     context.playwright = sync_playwright().start()
 
-    browser, context.page = setup_browser(
-        context, context.playwright, storage_state
-    )
+    browser, context.page = setup_browser(context, context.playwright, storage_state)
     yield context.page
 
     logger.info("Cleaning up Playwright resources")
@@ -75,7 +72,8 @@ def before_all(context):
     context.username = get_env_value("USERNAME")
 
     logger.info(
-        f"Environment loaded - Browser: {context.browser}, Headless: {context.headless}, Base URL: {context.base_url}")
+        f"Environment loaded - Browser: {context.browser}, Headless: {context.headless}, Base URL: {context.base_url}"
+    )
 
     use_fixture(setup_playwright, context, storage_state=True)
     logger.info(f"Navigating to base URL: {context.base_url}")
@@ -98,23 +96,30 @@ def after_step(context, step):
 
 def after_scenario(context, scenario):
     """Log scenario completion and attach artifacts if failed."""
-    logger.info(f"Scenario '{scenario.name}' completed with status: {scenario.status.name}")
+    logger.info(
+        f"Scenario '{scenario.name}' completed with status: {scenario.status.name}"
+    )
 
     if scenario.status == Status.failed:
-        logger.error(f"Scenario failed! Attaching screenshot and logs for {scenario.name}")
+        logger.error(
+            f"Scenario failed! Attaching screenshot and logs for {scenario.name}"
+        )
         # Screenshot
         attach(
             context.page.screenshot(),
             name=f"Screenshot : {scenario.name}",
-            attachment_type=AttachmentType.PNG
+            attachment_type=AttachmentType.PNG,
         )
         # Browser console logs
-        console_logs = context.page.evaluate("() => {return JSON.stringify(console.logs);}")
+        console_logs = context.page.evaluate(
+            "() => {return JSON.stringify(console.logs);}"
+        )
         if console_logs:
             attach(
                 console_logs,
                 name="Browser Console Logs",
-                attachment_type=AttachmentType.TEXT)
+                attachment_type=AttachmentType.TEXT,
+            )
             logger.info("Browser console logs attached")
     else:
         if "TC_02" not in context.scenario.tags:

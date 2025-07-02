@@ -25,4 +25,3 @@ class User:
 
     def is_user_logged_in(self):
         return Login(self.page).is_user_logged_in()
-
