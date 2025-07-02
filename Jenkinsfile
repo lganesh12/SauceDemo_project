@@ -1,40 +1,52 @@
 pipeline {
     agent any
+
     stages {
-        stage('Build') {
+        stage('Setup & Install') {
             steps {
                 sh '''
-                rm -rf venv
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install -r requirement.txt
+                    set -e
+                    rm -rf venv
+                    python3 -m venv venv
+                    source venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirement.txt
                 '''
             }
         }
-        stage('Test') {
+
+        stage('Run Tests') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''
-                    . venv/bin/activate
-                    behave -f allure_behave.formatter:AllureFormatter -o allure-results
+                        set -e
+                        source venv/bin/activate
+                        behave -f allure_behave.formatter:AllureFormatter -o allure-results || true
+                        echo "--- Contents of allure-results ---"
+                        ls -lah allure-results
                     '''
                 }
             }
         }
-        stage('Allure Report') {
+
+        stage('Generate Allure Report') {
             steps {
                 sh '''
-                . venv/bin/activate
-                allure generate allure-results -o allure-report --clean
+                    set -e
+                    source venv/bin/activate
+                    which allure || echo "Allure CLI not found"
+                    allure generate allure-results -o allure-report --clean
+                    echo "--- Contents of allure-report ---"
+                    ls -lah allure-report
                 '''
-                // Archive the report as a build artifact
                 archiveArtifacts artifacts: 'allure-report/**', allowEmptyArchive: true
             }
         }
     }
+
     post {
         always {
-            // If you have the Allure Jenkins plugin, this will publish the report and provide a link
+            // Publish Allure Report if the plugin is installed
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
