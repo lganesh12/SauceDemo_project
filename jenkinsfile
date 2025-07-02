@@ -1,91 +1,41 @@
-
 pipeline {
     agent any
-
-    tools {
-        python 'python3'
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/lganesh12/SauceDemo_project.git'
-            }
-        }
-
-        stage('Environment Info') {
+        stage('Build') {
             steps {
                 sh '''
-                    echo "Workspace directory:"
-                    pwd
-                    echo "\nDirectory contents:"
-                    ls -la
-                    echo "\nPython version:"
-                    python3 --version || echo "Python not found"
-                    echo "\nPip version:"
-                    pip --version || echo "Pip not found"
+                rm -rf venv
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install -r requirements.txt
                 '''
             }
         }
-
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
-                script {
-                    try {
-                        sh 'python3 -m pip install --upgrade pip'
-                        sh 'if [ -f "requirements.txt" ]; then pip install -r requirements.txt; else echo "requirements.txt not found"; exit 1; fi'
-                        sh 'pip install allure-behave'
-                    } catch (Exception e) {
-                        echo "Error during dependency installation: ${e.getMessage()}"
-                        throw e
-                    }
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''
+                    . venv/bin/activate
+                    behave -f allure_behave.formatter:AllureFormatter -o allure-results
+                    '''
                 }
             }
         }
-
-        stage('Verify Test Directory') {
+        stage('Allure Report') {
             steps {
                 sh '''
-                    echo "Checking features directory:"
-                    if [ -d "./features" ]; then
-                        echo "Features directory exists"
-                        ls -la ./features
-                    else
-                        echo "Features directory not found"
-                        exit 1
-                    fi
+                . venv/bin/activate
+                allure generate allure-results -o allure-report --clean
                 '''
-            }
-        }
-
-        stage('Run Tests with Allure') {
-            steps {
-                script {
-                    try {
-                        sh 'behave -f allure_behave.formatter:AllureFormatter -o allure-results --tags=~not_implemented ./features'
-                    } catch (Exception e) {
-                        echo "Error during test execution: ${e.getMessage()}"
-                        throw e
-                    }
-                }
-            }
-        }
-
-        stage('Publish Allure Report') {
-            steps {
-                allure includeProperties: false,
-                     jdk: '',
-                     results: [[path: 'allure-results']]
+                // Archive the report as a build artifact
+                archiveArtifacts artifacts: 'allure-report/**', allowEmptyArchive: true
             }
         }
     }
-
     post {
         always {
-            cleanWs()
-        }
-        failure {
-            echo 'Pipeline failed! Check the logs for details.'
+            // If you have the Allure Jenkins plugin, this will publish the report and provide a link
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
 }
