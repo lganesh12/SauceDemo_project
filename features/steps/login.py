@@ -1,6 +1,9 @@
 import logging
 
-from behave import *
+from behave import given
+from behave import then
+from behave import use_step_matcher
+from behave import when
 from playwright.sync_api import expect
 
 from features.locators import dict_locators
@@ -19,7 +22,7 @@ def do_nothing(context):
 
 
 @when("the user enters (?P<condition>valid|invalid) login credentials")
-def user_enter_valid_credentials(context,condition):
+def user_enter_valid_credentials(context, condition):
     """User enters valid login credentials
 
     :param context: behave context.
@@ -38,9 +41,7 @@ def user_enter_valid_credentials(context,condition):
         logging.info("Invalid credentials entered")
 
 
-
-
-@step("he clicks the login button")
+@when("he clicks the login button")
 def user_click_login_button(context):
     """User click login button
 
@@ -70,7 +71,9 @@ def verify_an_error_message_for_invalid_credentials(context):
     :param context: behave context.
     :type context: behave.runner.Context
     """
-    error_message = "Epic sadface: Username and password do not match any user in this service"
+    error_message = (
+        "Epic sadface: Username and password do not match any user in this service"
+    )
     expect(context.page.locator("//h3[@data-test='error']")).to_have_text(error_message)
 
 

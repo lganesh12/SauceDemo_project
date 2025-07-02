@@ -1,11 +1,14 @@
 import os
+
 from dotenv import load_dotenv
+
 from features.variable import PROJECT_ROOT
 
 
 def load_env():
-    env_path = PROJECT_ROOT/".env"
+    env_path = PROJECT_ROOT / ".env"
     load_dotenv(dotenv_path=env_path)
+
 
 def get_env_value(name):
     value = os.getenv(name)

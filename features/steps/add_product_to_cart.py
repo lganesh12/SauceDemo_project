@@ -1,9 +1,9 @@
-from behave import *
+from behave import given
+from behave import then
+from behave import when
 
 from features.locators import dict_locators
 from user_flow.user import User
-
-use_step_matcher("re")
 
 
 @given("the user is wants to Add a product to the shopping cart")
@@ -35,5 +35,7 @@ def verify_shopping_cart_should_show_item(context):
     :param context: behave context.
     :type context: behave.runner.Context
     """
-    total_item_added_in_cart = context.page.locator(dict_locators["item_added_in_cart"]).text_content()
-    print("total_item_added_in_cart",total_item_added_in_cart)
+    total_item_added_in_cart = context.page.locator(
+        dict_locators["item_added_in_cart"]
+    ).text_content()
+    print("total_item_added_in_cart", total_item_added_in_cart)
