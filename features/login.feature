@@ -1,16 +1,16 @@
-Feature: Login
+Feature: SauceDemo Login Functionality
 
   @TC_01
-  Scenario: Successful login
+  Scenario Outline: Verify login with various credentials combinations
     Given the user is on the SauceDemo login page
-    When  the user enters valid login credentials
+    When  the user enters <username> and <password>
     And   he clicks the login button
-    Then  the Products page is displayed
+    Then  the user should <expected_result>
 
-  @TC_02
-  Scenario: Unsuccessful login with invalid credentials
-    Given the user is on the SauceDemo login page
-    When  the user enters invalid login credentials
-    And   he clicks the login button
-    Then  he see an error message is displayed
-    And   he remains on the login page
+    Examples:
+      | username        | password       | expected_result                     |
+      | standard_user   | secret_sauce   | the Products page is displayed      |
+      | invalid_user    | wrong_password | an error message is displayed       |
+      | locked_out_user | secret_sauce   | the locked out error appears        |
+      | ""              | secret_sauce   | the username required error appears |
+      | standard_user   | ""             | the password required error appears |

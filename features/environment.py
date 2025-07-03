@@ -71,6 +71,11 @@ def before_all(context):
     context.password = get_env_value("PASSWORD")
     context.username = get_env_value("USERNAME")
 
+
+def before_scenario(context, scenario):
+    """Log scenario start and initialize user."""
+    logger.info(f"Starting scenario: {scenario.name}")
+    logger.info(f"Tags: {', '.join(scenario.tags)}")
     logger.info(
         f"Environment loaded - Browser: {context.browser}, Headless: {context.headless}, Base URL: {context.base_url}"
     )
@@ -78,20 +83,8 @@ def before_all(context):
     use_fixture(setup_playwright, context, storage_state=True)
     logger.info(f"Navigating to base URL: {context.base_url}")
     context.page.goto(context.base_url, wait_until="load", timeout=1200000)
-
-
-def before_scenario(context, scenario):
-    """Log scenario start and initialize user."""
-    logger.info(f"Starting scenario: {scenario.name}")
-    logger.info(f"Tags: {', '.join(scenario.tags)}")
-    context.user = User(context.page, context, "standard_user", "secret_sauce")
+    context.user = User(context.page, context, context.username, context.password)
     logger.info("User initialized")
-
-
-def after_step(context, step):
-    """Log after each step with status."""
-    status = step.status.name
-    logger.info(f"Step '{step.name}' {status}")
 
 
 def after_scenario(context, scenario):
@@ -121,12 +114,9 @@ def after_scenario(context, scenario):
                 attachment_type=AttachmentType.TEXT,
             )
             logger.info("Browser console logs attached")
+        context.page.close()
     else:
         if "TC_02" not in context.scenario.tags:
             logger.info("Logging out user after successful scenario")
             context.user.logout()
-
-
-def after_all(context):
-    """Log test completion."""
-    logger.info("Test execution completed")
+            context.page.close()
