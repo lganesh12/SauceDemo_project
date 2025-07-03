@@ -7,6 +7,8 @@ from behave import use_fixture
 from behave.model_core import Status
 from playwright.sync_api import sync_playwright
 
+from features.locators import dict_locators
+from features.variable import ELEMENT_WAIT_TIME
 from features.variable import SLOW_MOTION_TIME
 from user_flow.user import User
 from utilities.env import get_env_value
@@ -93,17 +95,16 @@ def after_scenario(context, scenario):
         f"Scenario '{scenario.name}' completed with status: {scenario.status.name}"
     )
 
+    # Attach screenshot and logs if scenario failed
     if scenario.status == Status.failed:
         logger.error(
             f"Scenario failed! Attaching screenshot and logs for {scenario.name}"
         )
-        # Screenshot
         attach(
             context.page.screenshot(),
             name=f"Screenshot : {scenario.name}",
             attachment_type=AttachmentType.PNG,
         )
-        # Browser console logs
         console_logs = context.page.evaluate(
             "() => {return JSON.stringify(console.logs);}"
         )
@@ -113,10 +114,22 @@ def after_scenario(context, scenario):
                 name="Browser Console Logs",
                 attachment_type=AttachmentType.TEXT,
             )
-            logger.info("Browser console logs attached")
+
+    # Only attempt logout if:
+    # 1. The scenario passed (no need to check in failed cases)
+    # 2. The user is on a page where logout is possible (e.g., not on login page)
+    elif hasattr(context, "page") and not context.page.url.endswith("/inventory.html"):
+        try:
+            if context.page.locator(dict_locators["burger_menu_btn"]).is_visible(
+                ELEMENT_WAIT_TIME
+            ):
+                logger.info("Logging out user after successful scenario")
+                context.user.logout()
+        except Exception as e:
+            logger.debug(
+                f"Skipping logout (user not logged in or already logged out): {e}"
+            )
+
+    # Always close the page
+    if hasattr(context, "page"):
         context.page.close()
-    else:
-        if "TC_02" not in context.scenario.tags:
-            logger.info("Logging out user after successful scenario")
-            context.user.logout()
-            context.page.close()
