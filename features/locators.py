@@ -8,4 +8,6 @@ dict_locators = {
     "Add_to_cart": "id=add-to-cart",
     "item_added_in_cart": "xpath=//span[@class='shopping_cart_badge']",
     "title_page": "xpath=//span[@class='title']",
+    "error_message": "xpath=//h3[@data-test='error']",
+    "burger_menu_btn": "css=#react-burger-menu-btn",
 }
