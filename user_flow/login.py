@@ -1,15 +1,18 @@
+from features.locators import dict_locators
+
+
 class Login:
     def __init__(self, page):
         self.page = page
 
     def enter_username(self, username):
-        self.page.locator("//input[@id='user-name']").fill(username)
+        self.page.locator(dict_locators["username_text_box"]).fill(username)
 
     def enter_password(self, password):
-        self.page.locator("//input[@id='password']").fill(password)
+        self.page.locator(dict_locators["password_text_box"]).fill(password)
 
     def click_login(self):
-        self.page.locator("//input[@id='login-button']").click()
+        self.page.locator(dict_locators["login_button"]).click()
 
     def login(self, username, password):
         self.enter_username(username)
