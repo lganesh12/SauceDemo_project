@@ -76,6 +76,8 @@ def before_all(context):
 
 def before_scenario(context, scenario):
     """Log scenario start and initialize user."""
+    context.vars = {}
+    context.tag_vars = {}
     logger.info(f"Starting scenario: {scenario.name}")
     logger.info(f"Tags: {', '.join(scenario.tags)}")
     logger.info(
