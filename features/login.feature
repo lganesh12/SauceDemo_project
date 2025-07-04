@@ -8,9 +8,7 @@ Feature: SauceDemo Login Functionality
     Then  the user should <expected_result>
 
     Examples:
-      | username        | password       | expected_result                     |
-      | standard_user   | secret_sauce   | the Products page is displayed      |
-      | invalid_user    | wrong_password | an error message is displayed       |
-      | locked_out_user | secret_sauce   | the locked out error appears        |
-      | ""              | secret_sauce   | the username required error appears |
-      | standard_user   | ""             | the password required error appears |
+      | username        | password       | expected_result                |
+      | standard_user   | secret_sauce   | the Products page is displayed |
+      | invalid_user    | wrong_password | an error message is displayed  |
+      | locked_out_user | secret_sauce   | the locked out error appears   |

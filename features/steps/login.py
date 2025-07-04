@@ -5,6 +5,8 @@ from behave import when
 from playwright.sync_api import expect
 
 from features.locators import dict_locators
+from features.variable import ELEMENT_WAIT_TIME
+from utilities.env import fail
 from utilities.env import get_context_var
 from utilities.env import set_context_var
 
@@ -42,10 +44,9 @@ def user_click_on_login_button(context):
     :type context: behave.runner.Context
     """
     context.user.click_btn(dict_locators["login_button"])
-    if context.page.locator(dict_locators["error_message"]):
-        error_message = context.page.locator(
-            dict_locators["error_message"]
-        ).inner_text()
+    error_locator = context.page.locator(dict_locators["error_message"])
+    if error_locator.is_visible(timeout=ELEMENT_WAIT_TIME):
+        error_message = error_locator.inner_text()
         set_context_var(context, "error_message", error_message)
 
 
@@ -69,9 +70,5 @@ def verify_user_get_expected_result(context, expected_result):
         assert (
             "user has been locked out" in error_message
         ), "No error message displayed for locked_out_user "
-    elif expected_result == "the username required error appears":
-        pass
-    elif expected_result == "the password required error appears":
-        pass
     else:
-        pass
+        fail(f"Invalid expected result {expected_result}")
