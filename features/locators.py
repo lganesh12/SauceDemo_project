@@ -10,4 +10,5 @@ dict_locators = {
     "title_page": "xpath=//span[@class='title']",
     "error_message": "xpath=//h3[@data-test='error']",
     "burger_menu_btn": "css=#react-burger-menu-btn",
+    "product_name": "//*[text()='Sauce Labs Bolt T-Shirt']",
 }
