@@ -71,7 +71,7 @@ def before_all(context):
     context.headless = is_truthy(get_env_value("HEADLESS"))
     context.base_url = get_env_value("BASE_URL")
     context.password = get_env_value("PASSWORD")
-    context.username = get_env_value("USERNAME")
+    context.username = get_env_value("USER_NAME")
 
 
 def before_scenario(context, scenario):
