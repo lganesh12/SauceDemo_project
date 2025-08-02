@@ -26,6 +26,7 @@ pipeline {
                 sh '''
                 . venv/bin/activate
                 allure generate allure-results -o allure-report --clean
+                allure serve allure-results --exclude-tags=not_implemented
                 '''
                 // Archive the report as a build artifact
                 archiveArtifacts artifacts: 'allure-report/**', allowEmptyArchive: true
