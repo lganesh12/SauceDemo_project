@@ -4,11 +4,13 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 from behave import given
+from behave import then
 from behave import use_step_matcher
 from behave import when
 
 from features.locators import dict_locators
 from features.variable import PROJECT_ROOT
+from utilities.env import image_comparison
 
 use_step_matcher("re")
 
@@ -45,3 +47,19 @@ def user_navigate_to_product_detail_page(context):
     except Exception as e:
         logging.error(f"Error downloading image: {e}")
         raise
+
+
+@then("the product image should match the baseline image")
+def Validate_product_image(context):
+    """User navigates to product detail page
+    :param context: behave context.
+    :type context: behave.runner.Context
+    """
+    base_image_path = (
+        PROJECT_ROOT / "image_comparison" / "base_image" / "base_image.jpg"
+    )
+    test_image_path = (
+        PROJECT_ROOT / "image_comparison" / "test_image" / "test_image.jpg"
+    )
+    image_comparison_status = image_comparison(base_image_path, test_image_path)
+    assert image_comparison_status, " Base Image and Test Image do not match"
