@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 from features.locators import dict_locators
 from features.variable import ELEMENT_WAIT_TIME
 from features.variable import SLOW_MOTION_TIME
+from features.variable import TRACE_LOGS
 from user_flow.user import User
 from utilities.env import get_env_value
 from utilities.env import is_truthy
@@ -45,6 +46,11 @@ def setup_browser(context, playwright, storage_state=False):
         )
     context.browser_context = browser.new_context()
     context.page = context.browser_context.new_page()
+
+    context.browser_context.tracing.start(
+        screenshots=True, snapshots=True, sources=True
+    )
+
     logger.info(f"Browser setup completed for {context.browser}")
     return context.browser_context, context.page
 
@@ -107,6 +113,9 @@ def after_scenario(context, scenario):
             name=f"Screenshot : {scenario.name}",
             attachment_type=AttachmentType.PNG,
         )
+        # Attach trace viewer logs
+        context.browser_context.tracing.stop(path="trace.zip")
+        attach.file(TRACE_LOGS, name="Trace viewer logs", extension=".zip")
         console_logs = context.page.evaluate(
             "() => {return JSON.stringify(console.logs);}"
         )
