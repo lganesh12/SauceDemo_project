@@ -1,17 +1,25 @@
-# Use the official Playwright Python image
-FROM mcr.microsoft.com/playwright/python:v1.52.0
+# Use official Python image with Node.js for Playwright support
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Set working directory
-WORKDIR /tests
+WORKDIR /app
 
-# Copy requirements first to cache dependencies
+# Copy dependency files
 COPY requirement.txt .
 
 # Install Python dependencies
-RUN pip install -r requirement.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirement.txt
+
+# Install Playwright browsers
+RUN playwright install --with-deps
 
 # Copy test files
 COPY . .
 
-# Default command to run tests
+# Set default command to run Behave tests
 CMD ["behave"]
