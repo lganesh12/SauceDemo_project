@@ -17,7 +17,7 @@ pipeline {
                     sh '''
                     . venv/bin/activate
                     rm -rf allure-results/*
-                    behave -f allure_behave.formatter:AllureFormatter -o allure-results ./features --tags=-@not_implemented
+                    behave -f allure_behave.formatter:AllureFormatter -o allure-results ./features --tags="not @not_implemented"
                     '''
                 }
             }
