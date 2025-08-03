@@ -1,6 +1,6 @@
 Feature: Search and filter products on SauceDemo
 
-  @TC_05 @not_implemented
+  @TC_05 @not_implemented 
   Scenario: Filter products by name ascending (A to Z)
     Given the user wants to filter products by name ascending
     When  the user logs in with username "standard_user" and password "secret_sauce"
